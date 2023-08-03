@@ -13,8 +13,7 @@ checkpoint = "MBZUAI/LaMini-Flan-T5-77M"
 tokenizer = AutoTokenizer.from_pretrained(checkpoint)
 model = AutoModelForSeq2SeqLM.from_pretrained(
     checkpoint,
-    device_map='auto',
-    torch_dtype = torch.float32
+    device_map='cpu'
 )
 
 @st.cache_resource
@@ -33,7 +32,7 @@ def llm_pipeline():
 @st.cache_resource
 def qa_llm():
     llm = llm_pipeline()
-    embeddings = SentenceTransformerEmbeddings(model_name='all_MiniLM-L6-v2')
+    embeddings = SentenceTransformerEmbeddings(model_name='all-MiniLM-L6-v2')
     db = Chroma(persist_directory='db', 
                 embedding_function=embeddings, 
                 client_settings=CHROMA_SETTINGS)
@@ -66,7 +65,7 @@ def main():
 
     question = st.text_area('Enter your question')
     if st.button("Search"):
-        st.info('Your question :'+question)
+        st.info(f'Your question : {question}')
         st.info("Your answer")   
         answer, metadata = process_answer(question)
         st.write(metadata)
